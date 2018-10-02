@@ -109,7 +109,7 @@ ArrayList<Integer> extract_often_sound(ArrayList sorted_map) {
     float freq = (float)((Map.Entry)sorted_map.get(i)).getKey();
     int d = _calc_scale_index(freq);
     scale[d]++;
-    if (scale[d] >= 3) {
+    if (scale[d] >= 3/*3回分 FIXME*/) {
       sounds.add(d);
     }
   }
@@ -174,7 +174,7 @@ void update_objects() {
       _drownObjects.remove(i);
       continue;
     }
-    _drownObjects.get(i).drawEllipse();
+    _drownObjects.get(i).drawNoiseEllipse();
   }
 }
 
