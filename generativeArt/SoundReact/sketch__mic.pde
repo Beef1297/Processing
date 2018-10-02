@@ -52,6 +52,10 @@ void setScale() {
 }
 
 float _prevPBand = 0; // 一つ前の値を記憶
+int _counter = 0;
+ArrayList<DrawObject> _drownObjects = new ArrayList<DrawObject>();
+int LIMIT = 10;
+int INTERVAL = 3;
 void draw() {
   Map<Float, Float> specific_freqMap = new LinkedHashMap<Float, Float>();
   //key   : Frequency
@@ -67,8 +71,53 @@ void draw() {
     putSpecificValue_from_data(specific_freqMap, curPBand, _prevPBand, frequency);
     _prevPBand = curPBand;
   }
-  //value(Amplitude) で 降順にソート
-  ArrayList sorted_map = new ArrayList(specific_freqMap.entrySet());
+  if (++_counter % INTERVAL == 0) {
+    //value(Amplitude) で 降順にソート
+    ArrayList sorted_map = sort_map_descending(specific_freqMap);
+    println(sorted_map.size()); 
+    /*
+      頻度が高い音を抽出
+     */
+    ArrayList<Integer> mode_sounds = extract_often_sound(sorted_map);
+    if (mode_sounds.size() != 0) {
+      for (int i=0; i < mode_sounds.size(); i++) {
+        Map.Entry element = (Map.Entry) sorted_map.get(i);
+        float freq = (float)element.getKey();
+        float amp  = (float)element.getValue();
+        float x = noise(map(i, 0, fft.specSize(), 0, width)) * random(width/2, width);
+        float y = noise(map(i, 0, fft.specSize(), 0, height)) * random(height/2, height);
+        drawCircle(freq, amp, x, y, mode_sounds.get(i));
+      }
+    }
+  }
+  update_objects();
+}
+
+// 前の値が次の値より大きかったら挿入する
+// スペクトルグラフの山頂をいれていくイメージ
+void putSpecificValue_from_data(Map<Float, Float> specV, float cB, float pB, float freq) {
+  if (pB > cB) {
+    //println(pB, cB);
+    specV.put(freq, pB);
+  }
+}
+
+ArrayList<Integer> extract_often_sound(ArrayList sorted_map) {
+  ArrayList<Integer> sounds = new ArrayList<Integer>();
+  int[] scale = new int[13];
+  for (int i=0; i < sorted_map.size(); i++) {
+    float freq = (float)((Map.Entry)sorted_map.get(i)).getKey();
+    int d = _calc_scale_index(freq);
+    scale[d]++;
+    if (scale[d] >= 3) {
+      sounds.add(d);
+    }
+  }
+  return sounds;
+}
+
+ArrayList sort_map_descending(Map<Float, Float> sfM) {
+  ArrayList sorted_map = new ArrayList(sfM.entrySet());
   Collections.sort(sorted_map, new Comparator() {
     public int compare(Object o1, Object o2) {
       Map.Entry<Float, Float> e1 = (Map.Entry<Float, Float>)o1;
@@ -77,24 +126,13 @@ void draw() {
     }
   }
   );
-  println(sorted_map.size()); 
-  if (sorted_map.size() != 0) {
-    for (int i=0; i < 4; i++) {
-      Map.Entry element = (Map.Entry) sorted_map.get(i);
-      float freq = (float)element.getKey();
-      float amp  = (float)element.getValue();
-      float x = noise(map(i, 0, fft.specSize(), 0, width)) * random(width/2, width);
-      float y = noise(map(i, 0, fft.specSize(), 0, height)) * random(height/2, height);
-      drawCircle(freq, amp, x, y);
-    }
-  }
-  //println(sorted_map);
+  return sorted_map;
 }
 
-void drawCircle (float freq, float amp, float x, float y) {
-  int d = _calc_scale_index(freq);
+void drawCircle (float freq, float amp, float x, float y, int d) {
   // 音ごとにいろ分け
   // FIXME 音の分け方
+
   if (d == 3/*C*/ || d == 4/*C#*/) {
     _drawCircleProcess(freq, amp, x, y, 0);
   }
@@ -118,12 +156,26 @@ void drawCircle (float freq, float amp, float x, float y) {
   }
 }
 
+
 void _drawCircleProcess(float freq, float amp, float x, float y, int h) {
-  println("( freq, amp ) :" + freq + "," + amp);
-  println("(x, y) : " + x + "," + y);
   float a = map(amp, 0, 300, 0, 360);
-  fill(h, 255, 255, a);
-  ellipse(x, y, amp, amp);
+  DrawObject d = new DrawObject(x, y, h, a, amp);
+  if (_drownObjects.size() <= LIMIT) {
+    println("( freq, amp ) : " + freq + "," + amp);
+    println("(x, y) : " + x + "," + y);
+    _drownObjects.add(d);
+  }
+}
+
+void update_objects() {
+  for (int i=0; i < _drownObjects.size(); i++) {
+    boolean bool = _drownObjects.get(i).update();
+    if (bool) {
+      _drownObjects.remove(i);
+      continue;
+    }
+    _drownObjects.get(i).drawEllipse();
+  }
 }
 
 /*
@@ -134,17 +186,9 @@ void _drawCircleProcess(float freq, float amp, float x, float y, int h) {
 int _calc_scale_index(float freq) {
   int d;
   d = (int)(12 * (log(freq) - log(440))/log(2)); 
-  return d%12;
+  return abs(d%12);
 }
 
-// 前の値が次の値より大きかったら挿入する
-// スペクトルグラフの山頂をいれていくイメージ
-void putSpecificValue_from_data(Map<Float, Float> specV, float cB, float pB, float freq) {
-  if (pB > cB) {
-    //println(pB, cB);
-    specV.put(freq, pB);
-  }
-}
 
 void stop() {
   minim.stop();
