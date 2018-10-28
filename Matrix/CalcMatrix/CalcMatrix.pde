@@ -1,12 +1,13 @@
 
 void setup() {
   size(600, 400);
-  frameRate(1);
+  frameRate(30);
 }
 
+float theta = 0;
 void draw() {
   // clear
-  background(255);
+  background(#f5deb3);
 
   // 原点の移動
   translate(width/2, height/2);
@@ -35,20 +36,21 @@ void draw() {
   endShape();
 
   // matrix
-  float[][] M = {
-    {sqrt(2)/2, sqrt(2)/2}, 
-    {-sqrt(2)/2, sqrt(2)/2}
+  float[][] R = {
+    {cos(radians(theta)), sin(radians(theta))}, 
+    {-sin(radians(theta)), cos(radians(theta))}
   };
-  Matrix2D.coordinateTransform(a, M);
-  Matrix2D.coordinateTransform(b, M);
-  Matrix2D.coordinateTransform(c, M);
-  Matrix2D.coordinateTransform(d, M);
+  Matrix2D.coordinateTransform(a, R);
+  Matrix2D.coordinateTransform(b, R);
+  Matrix2D.coordinateTransform(c, R);
+  Matrix2D.coordinateTransform(d, R);
   beginShape(QUAD);
   vertex(a.x, a.y); 
   vertex(b.x, b.y);
   vertex(c.x, c.y); 
   vertex(d.x, d.y);
   endShape();
+  theta += 0.1;
 }
 
 void Grid() {
