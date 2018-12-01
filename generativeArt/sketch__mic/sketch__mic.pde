@@ -158,7 +158,7 @@ void drawCircle (float freq, float amp, float x, float y, int d) {
 
 
 void _drawCircleProcess(float freq, float amp, float x, float y, int h) {
-  float a = map(amp, 0, 300, 0, 360);
+  float a = map(amp, 0, 300, 0, 360); // 実験的なデータ
   DrawObject d = new DrawObject(x, y, h, a, amp);
   if (_drownObjects.size() <= LIMIT) {
     println("( freq, amp ) : " + freq + "," + amp);
