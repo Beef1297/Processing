@@ -11,4 +11,4 @@ The repository for my Generative Art ( learning now )
 
 - simple reactive diffusion algorythm
 
-<img src="/Beef1297/Processing/tree/images/images/reaction_diffusion.png" title="reaction-diffusion">
+<img src="https://github.com/Beef1297/Processing/tree/images/images/reaction_diffusion.png" title="reaction-diffusion">
