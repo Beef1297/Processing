@@ -10,3 +10,5 @@ The repository for my Generative Art ( learning now )
 ### ReactiveDiffusion
 
 - simple reactive diffusion algorythm
+
+![reaction-diffusion](/Beef1297/Processing/tree/images/reaction_diffusion.png)
