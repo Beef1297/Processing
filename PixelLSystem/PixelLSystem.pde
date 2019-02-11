@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.ArrayDeque;
 
 // related to LSystem
 byte[] LSystem; // virtual pixel
@@ -10,8 +11,8 @@ float ROTATION_ANGLE;
 // related to drawing
 PVector dir;
 PVector pos;
-LinkedList<PVector> dirStack;
-LinkedList<PVector> posStack;
+ArrayDeque<PVector> dirStack;
+ArrayDeque<PVector> posStack;
 
 // which one should I use byte or int... ;
 
@@ -38,8 +39,8 @@ void setup() {
 void initializeVectors() {
   dir = new PVector(0, 1);
   pos = new PVector(0, 0);
-  dirStack = new LinkedList<PVector>();
-  posStack = new LinkedList<PVector>();
+  dirStack = new ArrayDeque<PVector>();
+  posStack = new ArrayDeque<PVector>();
 }
 
 void initializeLSystem() {
@@ -79,7 +80,7 @@ void initializeRule() {
 
 void draw() {
   background(255);
-  println(frameRate);
+  //println(frameRate);
   translate(width/2, height);
   scale(1, -1);
 
@@ -94,6 +95,7 @@ void updateLSystemPixel() {
   int i = 0;
   int j = 0;
   int resetFlag = 0;
+  long time1 = System.nanoTime();
   while (flag == 1 && i < LSYSTEM_SIZE && j < LSYSTEM_SIZE && resetFlag == 0) {
 
     if (i >= LSYSTEM_SIZE || j >= LSYSTEM_SIZE) {
@@ -138,6 +140,8 @@ void updateLSystemPixel() {
   } else {
     LSystem = nextLSystem; // past LSystem memory will release automatically
   }
+  long time2 = System.nanoTime();
+  //println(time2 - time2);
 }
 
 float branchLengthAttenuation = 0.9;
